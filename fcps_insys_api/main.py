@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import uvicorn
-from fastapi import FastAPI
 from api.courses.endpoints import courses_router
 from config import API, APP, load_config
+from fastapi import FastAPI
 
 
 def create_app(config_path: Path | None = None) -> FastAPI:

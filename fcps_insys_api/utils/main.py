@@ -1,8 +1,7 @@
 import json
-
 import re
-import urllib.request
 import urllib.parse
+import urllib.request
 
 from ..config import API
 
@@ -22,6 +21,7 @@ class InsysAPI:
     Must be initialized first, unless using the :func:`get_default_endpoint` method
     :param location_id: The location id of the school you want to get available courses for
     """
+
     DEFAULT_ENDPOINT: str = API.ENDPOINT
 
     def __init__(self, location_id: int, endpoint: str | None = None):
@@ -41,15 +41,17 @@ class InsysAPI:
         course_data = self.Data(data.access("TDATA.0"))
         course = {"data": {"course": {}}}
 
-        course["data"]["course"].update({
-            "id": course_id,
-            "number": course_data.access("CourseNum"),
-            "description": course_data.access("CourseDescription"),
-            "description_bold": course_data.access("DescriptionBold"),
-            "header_note": course_data.access("CourseHeaderNote"),
-            "prerequisites": course_data.access("Prerequisite"),
-            "corequisites": course_data.access("Corequisite"),
-        })
+        course["data"]["course"].update(
+            {
+                "id": course_id,
+                "number": course_data.access("CourseNum"),
+                "description": course_data.access("CourseDescription"),
+                "description_bold": course_data.access("DescriptionBold"),
+                "header_note": course_data.access("CourseHeaderNote"),
+                "prerequisites": course_data.access("Prerequisite"),
+                "corequisites": course_data.access("Corequisite"),
+            }
+        )
 
         return course
 
@@ -67,8 +69,8 @@ class InsysAPI:
         :return: A list containing the converted course(s) co/prerequisite ids
 
         """
-        remove_parentheses = r'\(.*?\)'
-        cleaned_text = re.sub(remove_parentheses, '', requisite_text).replace("-", "").lower()
+        remove_parentheses = r"\(.*?\)"
+        cleaned_text = re.sub(remove_parentheses, "", requisite_text).replace("-", "").lower()
         index = cleaned_text.find("&")
         if index != -1:
             cleaned_text = cleaned_text[:index]
@@ -98,9 +100,9 @@ class InsysAPI:
             course_list_data = self.Data(course_list["data"]["categories"][i])
 
             for c in range(course_list_len):
-                simplified_dict.update({
-                    course_list_data.access(f"courses.{c}.name"): course_list_data.access(f"courses.{c}.id")
-                })
+                simplified_dict.update(
+                    {course_list_data.access(f"courses.{c}.name"): course_list_data.access(f"courses.{c}.id")}
+                )
 
         return simplified_dict  # type: ignore
 
@@ -133,41 +135,31 @@ class InsysAPI:
         for i in range(categories_len):
             courses_len = data.access(f"TDATA.stCourseList.CourseGroups.{i}.CourseGroup.0.Courses", True)
             cat_name = data.access(f"TDATA.stCourseList.CourseGroups.{i}.CourseGroup.0.CourseGroupNav")
-            courses["data"]["categories"].append({
-                "category_name": cat_name,
-                "courses": [],
-            })
+            courses["data"]["categories"].append(
+                {
+                    "category_name": cat_name,
+                    "courses": [],
+                }
+            )
             for c in range(courses_len):
                 course_data = self.Data(data.access(f"TDATA.stCourseList.CourseGroups.{i}.CourseGroup.0.Courses.{c}"))
                 cat_type_code = course_data.access("Catalog_Type_Code")
-                courses["data"]["categories"][i]["courses"].append({
-                    "id":
-                        course_data.access(f"Course_ID"),
-                    "name":
-                        course_data.access("CourseName"),
-                    "credit":
-                        course_data.access("CourseCreditShort"),
-                    "is_ib":
-                        True if
-                        course_data.access(f"COURSE_FLAG_IB") == "Y"
-                        else False,
-                    "is_ap":
-                        True if
-                        course_data.access(
-                            "COURSE_FLAG_AP") == "Y"
-                        else False,
-                    "is_de":
-                        True if
-                        course_data.access(
-                            "COURSE_FLAG_DE") == "Y"
-                        else False,
-                    "type":
-                        "Online" if cat_type_code == "OL"
-                        else "Academy" if cat_type_code == "AC"
+                courses["data"]["categories"][i]["courses"].append(
+                    {
+                        "id": course_data.access("Course_ID"),
+                        "name": course_data.access("CourseName"),
+                        "credit": course_data.access("CourseCreditShort"),
+                        "is_ib": True if course_data.access("COURSE_FLAG_IB") == "Y" else False,
+                        "is_ap": True if course_data.access("COURSE_FLAG_AP") == "Y" else False,
+                        "is_de": True if course_data.access("COURSE_FLAG_DE") == "Y" else False,
+                        "type": "Online"
+                        if cat_type_code == "OL"
+                        else "Academy"
+                        if cat_type_code == "AC"
                         else cat_type_code,
-                    "grades_offered":
-                        self.__get_grades(course_data),
-                })
+                        "grades_offered": self.__get_grades(course_data),
+                    }
+                )
 
         return courses
 
@@ -178,35 +170,37 @@ class InsysAPI:
         """
         if course_id is not None:
             payload = {
-                'method': 'getCourseDetail',
-                'courseid': course_id,
-                'LocationID': self.location_id,
-                'showbus': '0',
-                'CachedPOS': '1'
+                "method": "getCourseDetail",
+                "courseid": course_id,
+                "LocationID": self.location_id,
+                "showbus": "0",
+                "CachedPOS": "1",
             }
         else:
             payload = {
-                'method': 'getPanelMenuData',
-                'LocationID': self.location_id,
-                'GradeA': '0',
-                'GradeB': '0',
-                'GradeC': '0',
-                'pagename': 'coursegroup',
-                'sourceapp': ''
+                "method": "getPanelMenuData",
+                "LocationID": self.location_id,
+                "GradeA": "0",
+                "GradeB": "0",
+                "GradeC": "0",
+                "pagename": "coursegroup",
+                "sourceapp": "",
             }
 
         data = urllib.parse.urlencode(payload)
-        req = urllib.request.Request(f"{self.endpoint}?{data}", headers={
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
+        req = urllib.request.Request(
+            f"{self.endpoint}?{data}",
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            },
+        )
 
         with urllib.request.urlopen(req) as response:
             status_code = response.getcode()
 
             if status_code == 200:
-                return self.__clean_cfc_data(response.read().decode('utf-8'))
+                return self.__clean_cfc_data(response.read().decode("utf-8"))
             else:
                 raise InsysAPIException(f"Invalid status code: {status_code}")
 
@@ -216,7 +210,7 @@ class InsysAPI:
         Internal function to convert a .cfc file to a json readable one
 
         """
-        return data[data.find("{"):]
+        return data[data.find("{") :]
 
     @staticmethod
     def __get_grades(data: "InsysAPI.Data") -> list[int]:
@@ -248,6 +242,7 @@ class InsysAPI:
         """
         Internal class that subclasses a python dictionary, used to make data retrieval easier
         """
+
         def access(self, to_parse: str, length: bool = False) -> JSONObject | int:
             """
             Internal function that allows you to access python dictionaries easily using strings separated by periods

@@ -8,21 +8,21 @@ def load_config(config_path: str | None = None) -> None:
         user_config = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(user_config)
 
-        if hasattr(user_config, 'APP'):
+        if hasattr(user_config, "APP"):
             for key, value in user_config.APP.__dict__.items():
-                if not key.startswith('__'):
+                if not key.startswith("__"):
                     setattr(APP, key, value)
 
-        if hasattr(user_config, 'API'):
+        if hasattr(user_config, "API"):
             for key, value in user_config.API.__dict__.items():
-                if not key.startswith('__'):
+                if not key.startswith("__"):
                     setattr(API, key, value)
 
 
 def get_version():
     try:
         return importlib.metadata.version("fcps_insys_api")
-    except AttributeError as e:
+    except AttributeError:
         return 0
 
 
