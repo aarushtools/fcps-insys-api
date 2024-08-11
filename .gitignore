@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+egg-info/
+pip-wheel-metadata/
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.coverage
+*.cover
+*.log
+nosetests.xml
+coverage.xml
+*.coveragerc
+*.tox
+*.nox
+*.coverage
+*.pytest_cache/
+*.hypothesis/
+*.pytest/
+*.tox/
+*.nox/
+*.coverage.*
+*.pytype/
+*.mypy/
+*.pyre/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# pyenv
+.python-version
+
+# poetry
+poetry.lock
+
+# venv
+venv/
+ENV/
+env/
+venv.bak/
+env.bak/
