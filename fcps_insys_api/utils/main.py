@@ -113,7 +113,7 @@ class InsysAPI:
         :param self: InsysAPI class instance.
 
         :return: Python nested dictionary with categories and course information.
-            Each course has the following properties: id, name, credit, is_ib, is_ap, is_de, type, grades_offered
+            Course properties returned: id, name, credit, weight, is_ib, is_ap, is_de, type, grades_offered
 
         >>> example_response = {
             {
@@ -125,7 +125,9 @@ class InsysAPI:
                                 {
                                     "id": 19265
                                     ...
-
+        >>> course = InsysAPI(location_id=503).get_course_list()["data"]["categories"][0]["courses"][0]
+        >>> if course["weight"] == 1.0 and not (course["is_ap"] or course["is_de"] or course["is_ib"]):
+        >>>     print("course is probably post-ap")
 
         """
         data = self.Data(json.loads(self.__get_data()))
@@ -149,6 +151,7 @@ class InsysAPI:
                         "id": course_data.access("Course_ID"),
                         "name": course_data.access("CourseName"),
                         "credit": course_data.access("CourseCreditShort"),
+                        "weight": self.__get_weight(str(course_data.access("CourseWeight"))),
                         "is_ib": True if course_data.access("COURSE_FLAG_IB") == "Y" else False,
                         "is_ap": True if course_data.access("COURSE_FLAG_AP") == "Y" else False,
                         "is_de": True if course_data.access("COURSE_FLAG_DE") == "Y" else False,
@@ -228,6 +231,16 @@ class InsysAPI:
         if data.access("Grade12") == "Y":
             grades.append(12)
         return grades
+
+    @staticmethod
+    def __get_weight(weight_str: str) -> float:
+        """
+        Internal shortcut function to calculate course weighting (i.e. 0.5 for honors)
+
+        """
+        if weight_str == "":
+            return 0.0
+        return float(weight_str[weight_str.find("+") + 1:])
 
     @classmethod
     def get_default_endpoint(cls) -> str:
