@@ -1,10 +1,12 @@
 [tool.poetry]
 name = "fcps_insys_api"
-version = "0.1.0"
+version = "0.1.1"
 description = "API for FCPS Insys course catalog"
 authors = ["aarushtools"]
 readme = "README.md"
 license = "MIT"
+homepage = "https://github.com/aarushtools/fcps-insys-api"
+repository = "https://github.com/aarushtools/fcps-insys-api"
 
 [tool.poetry.dependencies]
 python = "^3.12"
